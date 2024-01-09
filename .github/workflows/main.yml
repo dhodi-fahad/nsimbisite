@@ -1,0 +1,45 @@
+name: Build Static Site
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Use latest version with MIME type preservation
+        with:
+          fetch-depth: 0  # Ensure full history for correct MIME types
+
+      - name: Configure Git for consistent line endings
+        run: git config --global core.autocrlf input
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3  # Use latest version
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          BRANCH: gh-pages
+          FOLDER: out
+
+      - name: Cleanup
+        run: rm -rf out
